@@ -1,0 +1,86 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Common;
+
+public class ObjectGenerator : MonoBehaviour
+{
+    public Transform backGround;
+
+    private float windowLength;
+    private float windowHeight;
+
+    public int ballMaxCount;
+
+    private static List<GameObject> balls = new List<GameObject>();
+    private static int numberOfBalls = 0;
+    private static int ballRadius = 5;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        windowLength = backGround.localScale.x / 2;
+        windowHeight = backGround.localScale.y / 2;
+        balls.Clear();
+    }
+
+    float xLoc, yLoc;
+    void FixedUpdate()
+    {
+        numberOfBalls = balls.Count;
+        if (numberOfBalls < ballMaxCount)
+        {
+            xLoc = backGround.position.x + Random.Range(-windowLength, windowLength);
+            yLoc = backGround.position.y + Random.Range(-windowHeight, windowHeight);
+
+            bool tooClose = false;
+
+            if (balls.Count != 0)
+            {
+                foreach (GameObject gameObject in balls)
+                {
+                    if (GetClose(xLoc, yLoc, gameObject))
+                    {
+                        tooClose = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!tooClose)
+            {
+                GameObject go = Instantiate(Resources.Load("Prefab/Ball") as GameObject);
+                go.transform.localScale = new Vector3(ballRadius, ballRadius, ballRadius);
+                go.transform.position = new Vector3(xLoc, yLoc, backGround.position.z);
+                balls.Add(go);
+            }
+        }
+    }
+
+    public bool GetClose(float x, float y, GameObject ball)
+    {
+        float distanceX = Mathf.Abs(x - ball.transform.position.x);
+        float distanceY = Mathf.Abs(y - ball.transform.position.y);
+        double radius = 0.5 * ball.transform.localScale.x;
+        double distance = Mathf.Sqrt(Mathf.Pow(distanceX, 2) + Mathf.Pow(distanceY, 2));
+        
+        if (distance >= 2*radius)
+        {
+            return false;
+        } else
+        {
+            return true;
+        }
+    }
+
+    public static void DestroyBall(GameObject go)
+    {
+        balls.Remove(go);
+        Destroy(go);
+    }
+
+    public static void SetBallSize(int ballSize)
+    {
+        ballRadius = ballSize;
+    }
+}
