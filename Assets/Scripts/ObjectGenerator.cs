@@ -10,11 +10,14 @@ public class ObjectGenerator : MonoBehaviour
     private float windowLength;
     private float windowHeight;
 
-    public int ballMaxCount;
-
     private static List<GameObject> balls = new List<GameObject>();
     private static int numberOfBalls = 0;
     private static int ballRadius = 5;
+    private static int ballMaxNumber = 8;
+
+    private static bool updateSwitch = false;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -27,32 +30,35 @@ public class ObjectGenerator : MonoBehaviour
     float xLoc, yLoc;
     void FixedUpdate()
     {
-        numberOfBalls = balls.Count;
-        if (numberOfBalls < ballMaxCount)
+        if (updateSwitch)
         {
-            xLoc = backGround.position.x + Random.Range(-windowLength, windowLength);
-            yLoc = backGround.position.y + Random.Range(-windowHeight, windowHeight);
-
-            bool tooClose = false;
-
-            if (balls.Count != 0)
+            numberOfBalls = balls.Count;
+            if (numberOfBalls < ballMaxNumber)
             {
-                foreach (GameObject gameObject in balls)
+                xLoc = backGround.position.x + Random.Range(-windowLength, windowLength);
+                yLoc = backGround.position.y + Random.Range(-windowHeight, windowHeight);
+
+                bool tooClose = false;
+
+                if (balls.Count != 0)
                 {
-                    if (GetClose(xLoc, yLoc, gameObject))
+                    foreach (GameObject gameObject in balls)
                     {
-                        tooClose = true;
-                        break;
+                        if (GetClose(xLoc, yLoc, gameObject))
+                        {
+                            tooClose = true;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!tooClose)
-            {
-                GameObject go = Instantiate(Resources.Load("Prefab/Ball") as GameObject);
-                go.transform.localScale = new Vector3(ballRadius, ballRadius, ballRadius);
-                go.transform.position = new Vector3(xLoc, yLoc, backGround.position.z);
-                balls.Add(go);
+                if (!tooClose)
+                {
+                    GameObject go = Instantiate(Resources.Load("Prefab/Ball") as GameObject);
+                    go.transform.localScale = new Vector3(ballRadius, ballRadius, ballRadius);
+                    go.transform.position = new Vector3(xLoc, yLoc, backGround.position.z);
+                    balls.Add(go);
+                }
             }
         }
     }
@@ -82,5 +88,18 @@ public class ObjectGenerator : MonoBehaviour
     public static void SetBallSize(int ballSize)
     {
         ballRadius = ballSize;
+    }
+    public static void SetBallNr(int ballNr)
+    {
+        ballMaxNumber = ballNr;
+    }
+
+    public static void OpenGenerator()
+    {
+        updateSwitch = true;
+    }
+    public static void CloseGenerator()
+    {
+        updateSwitch = false;
     }
 }

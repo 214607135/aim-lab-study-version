@@ -2,26 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class UIManager : MonoBehaviour
 {
 
-    public InputField ballSizeInput;
+    public InputField ballNrInput;
     public GameObject startMenu;
     public GameObject mode1Menu;
     public GameObject crossHair;
+    public GameObject gameMode1Window;
+    public Text timeCountDown;
 
     Vector3 cameraLocationInGame;
     Vector3 cameraVelocity;
     float cameraMoveSpeed;
     float cameraRotateSpeed;
     Vector3 cameraRotationInGame;
-
-    private bool moveCameraMode1 = false;
-    private bool moveCameraMode1Start = false;
-    private bool gameStart = false;
-
-
 
     private void Start()
     {
@@ -35,8 +32,7 @@ public class UIManager : MonoBehaviour
         cameraLocationInGame = new Vector3(0, 13, 24);
         cameraRotationInGame = Vector3.zero;
 
-        cameraMoveSpeed = 10f;
-        cameraRotateSpeed = 1f;
+        cameraRotateSpeed = 20f; // 每秒钟多少度角
 
         crossHair.SetActive(false);
         mode1Menu.SetActive(false);
@@ -51,7 +47,26 @@ public class UIManager : MonoBehaviour
         //ObjectGenerator.SetBallSize(ballSize);
         Cursor.visible = false;
         CloseAllUIShow();
-        moveCameraMode1 = true;
+
+        // 从 0 -180 0 旋转到 0 -90 0
+        StartCoroutine(CameraMoveMode1());
+    }
+
+    IEnumerator CameraMoveMode1()
+    {      
+        float clip = cameraRotateSpeed * Time.deltaTime;
+        float cnt = (180 - 90) / clip;
+        int i = 0;
+        while (i < cnt)
+        {
+            Camera.main.transform.Rotate(new Vector3(0, clip, 0));
+            i++;
+            yield return 0;
+        }
+
+        // show mode 1 setting UI
+        mode1Menu.gameObject.SetActive(true);
+        Cursor.visible = true;
     }
 
     public void OnClickMode1StartGame()
@@ -59,59 +74,53 @@ public class UIManager : MonoBehaviour
         // mode 1 game start!
         Cursor.visible = false;
         CloseAllUIShow();
-        moveCameraMode1Start = true;
-    }
-    
-    void Update()
-    {
 
-        if (moveCameraMode1)
+        string ballNumber = ballNrInput.text;
+        int ballNr = 0;
+        if (int.TryParse(ballNumber, out ballNr))
         {
-            // 在进入游戏模式1的设置模式中时发生
-            UpdateCameraMoveMode1();
+            if (ballNr > 0)
+            {
+                ObjectGenerator.SetBallNr(ballNr);
+            }
         }
         
-        if (moveCameraMode1Start)
-        {
-            // 在准备进入游戏时发生，摄像头的移动
-            UpdateCameraMoveMode1Start();
-        }
-
-        if (gameStart)
-        {
-            // 在游戏正式开始时发生
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-       
-
+        // 从 0 -90 0 旋转到 0 0 0
+        StartCoroutine(CameraMoveMode1StartGame());
     }
 
-    void UpdateCameraMoveMode1()
+    IEnumerator CameraMoveMode1StartGame()
     {
-        Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.Euler(0, -90, 0), cameraRotateSpeed * Time.deltaTime);
-
-        if (Camera.main.transform.rotation == Quaternion.Euler(0, -90, 0))
+        float clip = cameraRotateSpeed * Time.deltaTime;
+        float cnt = (180 - 90) / clip;
+        int i = 0;
+        float step = Vector3.Distance(Camera.main.transform.position, cameraLocationInGame) / cnt;
+        while (i < cnt)
         {
-            moveCameraMode1 = false;
-            // show mode 1 setting UI
-            mode1Menu.gameObject.SetActive(true);
-            Cursor.visible = true;
+            Camera.main.transform.Rotate(new Vector3(0, clip, 0));
+            Camera.main.transform.position = Vector3.MoveTowards(Camera.main.transform.position, cameraLocationInGame, step);
+            i++;
+            yield return 0;
         }
+        crossHair.SetActive(true);
+
+        // 此时应该开始生成球对象，并倒计时三秒
+        ObjectGenerator.OpenGenerator();
+        gameMode1Window.SetActive(true);
+        StartCoroutine(TimerCountDown(3));
     }
 
-    void UpdateCameraMoveMode1Start()
+    private IEnumerator TimerCountDown(int totalTime)
     {
-        float step = cameraMoveSpeed * Time.deltaTime;
-        Camera.main.transform.position = Vector3.MoveTowards(Camera.main.transform.position, cameraLocationInGame, step);
-
-        Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.Euler(0, 0, 0), cameraRotateSpeed * Time.deltaTime);
-
-        if (Camera.main.transform.position == cameraLocationInGame)
+        timeCountDown.gameObject.SetActive(true);
+        while (totalTime > 0)
         {
-            moveCameraMode1Start = false;
-            gameStart = true;
-            crossHair.SetActive(true);
+            timeCountDown.text = totalTime.ToString();
+            yield return new WaitForSeconds(1);
+            totalTime--;
         }
+        timeCountDown.gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void CloseAllUIShow()
@@ -119,5 +128,6 @@ public class UIManager : MonoBehaviour
         startMenu.gameObject.SetActive(false);
         mode1Menu.gameObject.SetActive(false);
         crossHair.gameObject.SetActive(false);
+        gameMode1Window.gameObject.SetActive(false);
     }
 }
