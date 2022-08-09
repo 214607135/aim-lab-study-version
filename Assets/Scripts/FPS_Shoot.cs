@@ -10,13 +10,22 @@ public class FPS_Shoot : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Input.GetMouseButtonDown(0))
+        if (ObjectGenerator.GetUpdateSwitch() && (Cursor.lockState == CursorLockMode.Locked))
         {
-            if (Physics.Raycast(ray, out hitInfo))
+            ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Input.GetMouseButtonDown(0))
             {
-                print(hitInfo.collider.gameObject.name);
-                ObjectGenerator.DestroyBall(hitInfo.collider.gameObject);
+                if (Physics.Raycast(ray, out hitInfo))
+                {
+                    if (hitInfo.collider.gameObject.tag == "Enemy")
+                    {
+                        ObjectGenerator.DestroyBall(hitInfo.collider.gameObject);
+                        UIManager.EffectClickAdd();
+                    }
+                }
+                
+                 UIManager.ClickAdd();
+                
             }
         }
     }

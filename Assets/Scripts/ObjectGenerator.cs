@@ -102,4 +102,17 @@ public class ObjectGenerator : MonoBehaviour
     {
         updateSwitch = false;
     }
+
+    public static bool GetUpdateSwitch()
+    {
+        return updateSwitch;
+    }
+
+    public static void ClearBalls()
+    {
+        foreach (GameObject ball in balls) {
+            Destroy(ball);
+        }
+        balls.Clear();
+    }
 }
