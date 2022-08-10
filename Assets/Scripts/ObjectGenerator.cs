@@ -12,7 +12,7 @@ public class ObjectGenerator : MonoBehaviour
 
     private static List<GameObject> balls = new List<GameObject>();
     private static int numberOfBalls = 0;
-    private static int ballRadius = 5;
+    private static float ballRadius = 1f;
     private static int ballMaxNumber = 8;
 
     private static bool updateSwitch = false;
@@ -54,7 +54,7 @@ public class ObjectGenerator : MonoBehaviour
 
                 if (!tooClose)
                 {
-                    GameObject go = Instantiate(Resources.Load("Prefab/Ball") as GameObject);
+                    GameObject go = Instantiate(Resources.Load("Prefab/SplitBall") as GameObject);
                     go.transform.localScale = new Vector3(ballRadius, ballRadius, ballRadius);
                     go.transform.position = new Vector3(xLoc, yLoc, backGround.position.z);
                     balls.Add(go);
@@ -70,7 +70,7 @@ public class ObjectGenerator : MonoBehaviour
         double radius = 0.5 * ball.transform.localScale.x;
         double distance = Mathf.Sqrt(Mathf.Pow(distanceX, 2) + Mathf.Pow(distanceY, 2));
         
-        if (distance >= 2*radius)
+        if (distance >= 2 * radius + 5)
         {
             return false;
         } else
@@ -79,10 +79,9 @@ public class ObjectGenerator : MonoBehaviour
         }
     }
 
-    public static void DestroyBall(GameObject go)
+    public static void RemoveBall(GameObject go)
     {
         balls.Remove(go);
-        Destroy(go);
     }
 
     public static void SetBallSize(int ballSize)

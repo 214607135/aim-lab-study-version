@@ -17,16 +17,36 @@ public class FPS_Shoot : MonoBehaviour
             {
                 if (Physics.Raycast(ray, out hitInfo))
                 {
+                    Debug.Log(hitInfo.collider.gameObject.name);
                     if (hitInfo.collider.gameObject.tag == "Enemy")
                     {
-                        ObjectGenerator.DestroyBall(hitInfo.collider.gameObject);
+                        Explode(hitInfo.point);
+                        ObjectGenerator.RemoveBall(hitInfo.collider.gameObject.transform.parent.gameObject);
+                        //Destroy(hitInfo.collider.gameObject.transform.parent.gameObject);
                         UIManager.EffectClickAdd();
                     }
                 }
-                
                  UIManager.ClickAdd();
-                
             }
+        }
+    }
+
+
+    private float radius = 5f;
+    private float power = 50F;
+    public void Explode(Vector3 hitPoint)
+    {
+        Vector3 explosionPos = hitPoint;
+        Collider[] colliders = Physics.OverlapSphere(explosionPos, radius);
+        foreach (Collider hit in colliders)
+        {
+            Rigidbody rb = hit.GetComponent<Rigidbody>();
+
+            if (rb != null)
+            {
+                rb.AddExplosionForce(power, explosionPos, radius, 3.0F);
+            }
+            
         }
     }
 }

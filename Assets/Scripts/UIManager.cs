@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
 {
 
     public InputField ballNrInput;
+    public InputField textTimeSetting;
+
     public GameObject startMenu;
     public GameObject mode1Menu;
     public GameObject crossHair;
@@ -21,7 +23,7 @@ public class UIManager : MonoBehaviour
     public Text textGameTime;
     public Text textFinalScore;
     public Text textFinalRate;
-
+ 
     Vector3 cameraLocationInGame;
     float cameraMoveSpeed;
     float cameraRotateSpeed;
@@ -30,7 +32,9 @@ public class UIManager : MonoBehaviour
     static float validClickCount = 0;
     private float hitRate = 0;
     private float score = 0;
-    private double gameTime = 0;
+    private double gamePassTime = 0;
+    private int gameSettingTime = 0;
+    
 
     private void Start()
     {
@@ -43,6 +47,8 @@ public class UIManager : MonoBehaviour
         cameraLocationInGame = new Vector3(0, 13, 24);
 
         cameraRotateSpeed = 20f; // 每秒钟多少度角
+
+
 
         crossHair.SetActive(false);
         mode1Menu.SetActive(false);
@@ -59,6 +65,9 @@ public class UIManager : MonoBehaviour
         //ObjectGenerator.SetBallSize(ballSize);
         Cursor.visible = false;
         CloseAllUIShow();
+
+        textTimeSetting.text = "";
+        ballNrInput.text = "";
 
         // 从 0 -180 0 旋转到 0 -90 0
         StartCoroutine(CameraMoveMode1());
@@ -86,6 +95,9 @@ public class UIManager : MonoBehaviour
         // mode 1 game start!
         Cursor.visible = false;
         CloseAllUIShow();
+
+        gameSettingTime = Int32.Parse(textTimeSetting.text);
+        textGameTime.text = "Time Left: " + gameSettingTime.ToString();
 
         string ballNumber = ballNrInput.text;
         int ballNr = 0;
@@ -181,12 +193,12 @@ public class UIManager : MonoBehaviour
 
         if (ObjectGenerator.GetUpdateSwitch() && Cursor.lockState == CursorLockMode.Locked)
         {
-            gameTime += Time.deltaTime;
-            if (gameTime >= 20)
+            gamePassTime += Time.deltaTime;
+            if (gamePassTime >= gameSettingTime)
             {
                 GameEnd();
             }
-            textGameTime.text = "Time Left: " + Math.Round(20 - gameTime).ToString();
+            textGameTime.text = "Time Left: " + Math.Round(gameSettingTime - gamePassTime).ToString();
         }
 
         if (totalClickCount == 0)
@@ -231,10 +243,11 @@ public class UIManager : MonoBehaviour
         totalClickCount = 0;
         score = 0;
         hitRate = 0;
-        gameTime = 0;
+        gamePassTime = 0;
+        gameSettingTime = 0;
         textScore.text = "Score: " + score.ToString();
         textHitRate.text = "Hit Rate: " + hitRate.ToString("f2") + "%";
-        textGameTime.text = "Time Left: " + Math.Round(20 - gameTime).ToString();
+        textGameTime.text = "Time Left: " + Math.Round(20 - gamePassTime).ToString();
 
         Camera.main.transform.position = new Vector3(0, 13, -10);
         Camera.main.transform.eulerAngles = new Vector3(0, -180, 0);
