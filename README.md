@@ -16,3 +16,9 @@
 		1. Made ball segment vanished after 1 or 2 seconds.
 		2. Do not give balls rigidbody component before they are splited, it may help solve bug 2.
 		3. Or, directly learn how to create animation in blender software?
+
+  ##### 2022.08.15 check-in
+  	Delete split effect, it would cause code less-readable and difficult to modify.
+	Todo:
+		1. Create split animation, however, I do not know how to do it yet.
+		2. Or, just made a video of current game mode first, can do the animation later.

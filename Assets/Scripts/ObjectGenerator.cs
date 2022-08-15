@@ -12,7 +12,7 @@ public class ObjectGenerator : MonoBehaviour
 
     private static List<GameObject> balls = new List<GameObject>();
     private static int numberOfBalls = 0;
-    private static float ballRadius = 1f;
+    private static float ballRadius = 5f;
     private static int ballMaxNumber = 8;
 
     private static bool updateSwitch = false;
@@ -54,7 +54,7 @@ public class ObjectGenerator : MonoBehaviour
 
                 if (!tooClose)
                 {
-                    GameObject go = Instantiate(Resources.Load("Prefab/SplitBall") as GameObject);
+                    GameObject go = Instantiate(Resources.Load("Prefab/ball") as GameObject);
                     go.transform.localScale = new Vector3(ballRadius, ballRadius, ballRadius);
                     go.transform.position = new Vector3(xLoc, yLoc, backGround.position.z);
                     balls.Add(go);
