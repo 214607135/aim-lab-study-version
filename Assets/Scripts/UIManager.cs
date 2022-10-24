@@ -253,4 +253,12 @@ public class UIManager : MonoBehaviour
         Camera.main.transform.eulerAngles = new Vector3(0, -180, 0);
     }
 
+    public void OnClickExitGame()
+    {
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;//用于退出运行
+        #else
+            Application.Quit();
+        #endif
+    }
 }
